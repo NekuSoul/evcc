@@ -58,8 +58,8 @@
           "heating": "Kullanıcı tanımlı ısıtıcı"
         },
         "heatpump": "Kullanıcı tanımlı ısı pompası",
-        "sgready": "Kullanıcı tanımlı ısı pompası (sg-ready, tamamı)",
-        "sgready-boost": "Kullanıcı tanımlı ısı pompası (sg-ready, takviye)",
+        "sgready": "Kullanıcı tanımlı ısı pompası (sg-ready eklentiler üzerinden)",
+        "sgready-relay": "Kullanıcı tanımlı ısı pompası (sg-ready röleler üzerinden)",
         "switchsocket": "Kullanıcı tanımlı şalterli priz"
       }
     },
@@ -447,7 +447,6 @@
         "backup": {
           "action": "Yedeklemeyi indir...",
           "confirmationButton": "Yedeklemeyi indir",
-          "confirmationText": "Veritabanı dosyasını indirmek için lütfen şifreni gir.",
           "description": "Verilerini bir dosyaya yedekle. Bu dosya, bir sistem arızası durumunda verilerini geri yüklemek için kullanılabilir.",
           "title": "Yedekle"
         },

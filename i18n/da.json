@@ -58,8 +58,8 @@
           "heating": "Brugerdefineret varmelegeme"
         },
         "heatpump": "Brugerdefineret varmepumpe",
-        "sgready": "Brugerdefineret varmepumpe (sg-klar, alle)",
-        "sgready-boost": "Brugerdefineret varmepumpe (sg-klar, boost)",
+        "sgready": "Brugerdefineret varmepumpe (sg-ready via plugins)",
+        "sgready-relay": "Brugerdefineret varmepumpe (sg-ready via relæer)",
         "switchsocket": "Brugerdefineret stikkontakt"
       }
     },
@@ -486,7 +486,6 @@
         "backup": {
           "action": "Download sikkerhedskopi...",
           "confirmationButton": "Download sikkerhedskopi",
-          "confirmationText": "Indtast venligst din adgangskode for at downloade databasefilen.",
           "description": "Sikkerhedskopier dine data til en fil. Den kan bruges til at gendanne dine data i tilfælde af systemfejl.",
           "title": "Sikkerhedskopier"
         },
