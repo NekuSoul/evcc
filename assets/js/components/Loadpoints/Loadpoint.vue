@@ -178,10 +178,11 @@ export default defineComponent({
 		planProjectedEnd: String as PropType<string | null>,
 		planOverrun: { type: Number, default: 0 },
 		planEnergy: Number,
-		planPrecondition: Number,
 		planTime: String as PropType<string | null>,
 		effectivePlanTime: String as PropType<string | null>,
 		effectivePlanSoc: Number,
+		effectivePlanPrecondition: Number,
+		effectivePlanContinuous: Boolean,
 		vehicleProviderLoggedIn: Boolean,
 		vehicleProviderLoginPath: String,
 		vehicleProviderLogoutPath: String,
@@ -296,7 +297,7 @@ export default defineComponent({
 			return this.pvConfigured || this.gridConfigured;
 		},
 		batteryBoostAvailable() {
-			return this.batteryConfigured && this.$hiddenFeatures();
+			return this.batteryConfigured;
 		},
 		batteryBoostActive() {
 			return (
