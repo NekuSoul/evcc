@@ -1,10 +1,12 @@
 package planner
 
 import (
+	"iter"
+	"slices"
 	"time"
 
 	"github.com/evcc-io/evcc/api"
-	"github.com/samber/lo"
+	"github.com/samber/lo/it"
 )
 
 // Start returns the earliest slot's start time
@@ -87,42 +89,49 @@ func IsFirst(r api.Rate, plan api.Rates) bool {
 
 // clampRates filters rates to the given time window and adjusts boundary slots
 func clampRates(rates api.Rates, start, end time.Time) api.Rates {
-	res := make(api.Rates, 0, len(rates)+2)
+	res := make(api.Rates, 0, len(rates))
+	return slices.AppendSeq(res, clampRatesSeq(rates, start, end))
+}
 
-	for _, r := range rates {
-		// slot before continuous plan
-		if !r.End.After(start) {
-			continue
+// clampRatesSeq returns an iterator for filtering rates to the given time window and adjusts boundary slots
+func clampRatesSeq(rates api.Rates, start, end time.Time) iter.Seq[api.Rate] {
+	return func(yield func(api.Rate) bool) {
+		for _, r := range rates {
+			// slot before continuous plan
+			if !r.End.After(start) {
+				continue
+			}
+
+			// slot after continuous plan
+			if !r.Start.Before(end) {
+				return
+			}
+
+			// calculate adjusted bounds
+			adjustedStart := r.Start
+			if adjustedStart.Before(start) {
+				adjustedStart = start
+			}
+
+			adjustedEnd := r.End
+			if adjustedEnd.After(end) {
+				adjustedEnd = end
+			}
+
+			// skip if adjustment would create invalid slot
+			if !adjustedEnd.After(adjustedStart) {
+				continue
+			}
+
+			if !yield(api.Rate{
+				Start: adjustedStart,
+				End:   adjustedEnd,
+				Value: r.Value,
+			}) {
+				return // Stop early if yield returns false
+			}
 		}
-
-		// slot after continuous plan
-		if !r.Start.Before(end) {
-			continue
-		}
-
-		// calculate adjusted bounds
-		adjustedStart := r.Start
-		if adjustedStart.Before(start) {
-			adjustedStart = start
-		}
-
-		adjustedEnd := r.End
-		if adjustedEnd.After(end) {
-			adjustedEnd = end
-		}
-
-		// skip if adjustment would create invalid slot
-		if !adjustedEnd.After(adjustedStart) {
-			continue
-		}
-
-		slot := r
-		slot.Start = adjustedStart
-		slot.End = adjustedEnd
-		res = append(res, slot)
 	}
-
-	return res
 }
 
 // findContinuousWindow finds the cheapest continuous window of slots for the given duration.
@@ -138,7 +147,7 @@ func findContinuousWindow(rates api.Rates, effectiveDuration time.Duration, targ
 			break
 		}
 
-		cost := lo.SumBy(clampRates(rates[i:], rates[i].Start, windowEnd), func(r api.Rate) float64 {
+		cost := it.SumBy(clampRatesSeq(rates[i:], rates[i].Start, windowEnd), func(r api.Rate) float64 {
 			return float64(r.End.Sub(r.Start)) * r.Value
 		})
 
