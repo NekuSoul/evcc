@@ -35,7 +35,7 @@ func (site *Site) greenShare(powerFrom float64, powerTo float64) float64 {
 	greenPower := math.Max(0, site.pvPower)
 
 	// only add battery to greenPower when above chosen prioritySoc with a bit of leeway
-	if site.batterySoc > site.prioritySoc-0.01 {
+	if site.battery.Soc > site.prioritySoc-0.01 {
 		greenPower += math.Max(0, site.battery.Power)
 	}
 
