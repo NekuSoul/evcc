@@ -666,14 +666,9 @@ func (site *Site) updateBatteryMeters() {
 		site.log.DEBUG.Printf("battery soc: %.0f%%", math.Round(site.battery.Soc))
 	}
 
-	// keep forecast property created by optimizer
-	for i := range site.battery.Devices {
-		mm[i].Forecast = site.battery.Devices[i].Forecast
-	}
-
 	site.battery.Devices = mm
 
-	site.publish(keys.Battery, util.NewSharder(keys.Battery, site.battery))
+	site.publish(keys.Battery, site.battery)
 }
 
 // updateAuxMeters updates aux meters
@@ -855,7 +850,7 @@ func (site *Site) sitePower(totalChargePower, flexiblePower float64) (float64, b
 		} else {
 			// if battery is above bufferSoc allow using it for charging
 			batteryBuffered = site.bufferSoc > 0 && site.battery.Soc > site.bufferSoc
-			batteryStart = site.bufferStartSoc > 0 && site.battery.Soc > site.bufferStartSoc
+			batteryStart = site.bufferStartSoc > 0 && site.battery.Soc >= site.bufferStartSoc
 		}
 	}
 
