@@ -94,11 +94,13 @@ export interface State {
   pv?: Meter[];
   aux?: Meter[];
   ext?: Meter[];
+  consumers?: Meter[];
   tariffs?: ConfigStatus<unknown, unknown>;
   tariffGrid?: number;
   tariffFeedIn?: number;
   tariffCo2?: number;
   tariffSolar?: number;
+  tariffTemperature?: number;
   mqtt?: MqttConfig;
   influx?: InfluxConfig;
   hems?: ConfigStatus<HemsConfig, HemsStatus>;
@@ -115,6 +117,7 @@ export interface State {
   prioritySoc?: number;
   bufferStartSoc?: number;
   batteryDischargeControl?: boolean;
+  solarAdjusted?: boolean;
   batteryGridChargeLimit?: number | null;
   smartCostAvailable?: boolean;
   smartCostType?: SMART_COST_TYPE;
@@ -326,6 +329,7 @@ export interface Loadpoint {
   effectiveLimitSoc: number;
   effectiveMaxCurrent: number;
   effectiveMinCurrent: number;
+  effectiveMinSoc: number;
   effectivePlanId: number;
   effectivePlanSoc: number;
   effectivePlanTime: string | null;
@@ -338,6 +342,7 @@ export interface Loadpoint {
   limitSoc: number;
   maxCurrent: number;
   minCurrent: number;
+  minSoc: number;
   minSocNotReached: boolean;
   mode: CHARGE_MODE;
   offeredCurrent: number;
@@ -366,6 +371,7 @@ export interface Loadpoint {
   smartFeedInPriorityActive: boolean;
   smartFeedInPriorityLimit: number | null;
   smartFeedInPriorityNextStart: string | null;
+  suggestion?: LoadpointSuggestion | null;
   title: string;
   vehicleClimaterActive: boolean | null;
   vehicleDetectionActive: boolean;
@@ -668,14 +674,30 @@ export interface Battery {
   forecast?: BatteryForecast;
 }
 
+export interface BatterySuggestion {
+  action: "normal" | "hold" | "charge" | "holdcharge";
+  charge?: number; // recommended charge power, W
+  discharge?: number; // recommended discharge power, W
+  actionable?: boolean; // suggestion differs from the current operating mode
+}
+
+export interface LoadpointSuggestion {
+  action: "charge" | "stop";
+  charge?: number; // recommended charge power, W
+  discharge?: number; // recommended discharge power, W
+  actionable?: boolean; // suggestion differs from the current operating mode
+}
+
 export interface BatteryMeter extends Meter {
   soc: number;
   controllable: boolean;
   capacity: number; // 0 when not specified
+  suggestion?: BatterySuggestion;
 }
 
 export interface Vehicle {
   name: string;
+  mode?: CHARGE_MODE | "";
   minSoc?: number;
   limitSoc?: number;
   plan?: StaticPlan;
@@ -723,6 +745,7 @@ export interface Forecast {
   solar?: SolarDetails;
   planner?: ForecastSlot[];
   feedin?: ForecastSlot[];
+  temperature?: ForecastSlot[];
 }
 
 export interface SelectOption<T> {
@@ -742,7 +765,7 @@ export type DeviceType =
   | "hems";
 export type MeterType = "grid" | "pv" | "battery" | "charge" | "aux" | "ext" | "consumer";
 export type MeterTemplateUsage = "grid" | "pv" | "battery" | "charge" | "aux";
-export type TariffType = "grid" | "feedIn" | "co2" | "planner" | "solar";
+export type TariffType = "grid" | "feedIn" | "co2" | "planner" | "solar" | "temperature";
 
 // see https://stackoverflow.com/a/54178819
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -755,7 +778,7 @@ export interface SiteConfig {
   title: string;
   aux: string[] | null;
   ext: string[] | null;
-  consumers: string[] | null;
+  consumer: string[] | null;
 }
 
 export type ValueOf<T> = T[keyof T];
