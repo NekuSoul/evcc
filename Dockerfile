@@ -1,3 +1,4 @@
+
 # STEP 1 build ui
 FROM --platform=$BUILDPLATFORM node:26-alpine AS node
 
@@ -14,7 +15,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 # build ui
 COPY Makefile .
-COPY *.js ./
+#COPY *.js ./
 COPY *.ts *.mts ./
 COPY .browserslistrc .
 COPY assets assets
